@@ -114,20 +114,17 @@ function updateUIelements (obj) {
     if(!obj.author) {
           authorText.textContent = "Unknown";
     } else {
-            // We just want to display the "author" part of the
-            // quote object hence, quote.author
+            // We just want to display the "author" part of the quote object hence, quote.author
             authorText.textContent = obj.author;
         }
     
         if(obj.text.length > 100) {
-            // Add a new CSS class (that already exists in styles.css file) to 
-            // quoteText element if the quote is long.
+            // Add a new CSS class (that already exists in styles.css file) to quoteText element if the quote is long.
             quoteText.classList.add("longQuote");
         } else {
             // Remove the CSS class if the quote is a short one.
             quoteText.classList.remove("longQuote");
         }
-        
         quoteText.textContent = obj.text;
 }
 
