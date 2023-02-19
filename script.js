@@ -2,11 +2,16 @@ const quoteContainer = document.querySelector("#quoteContainer");
 const quoteText = document.querySelector("#quote");
 const authorText = document.querySelector("#author");
 const newQuoteBtn = document.querySelector("#newQuote");
+const btnPreviousQuote = document.querySelector("#btnPreviousQuote");
+const btnPresentQuote = document.querySelector("#btnPresentQuote");
 const twitterBtn = document.querySelector("#twitterButton");
 
 const loader = document.querySelector("#loader");
 
 let apiQuotes = [];
+let previousAndPresentQuote = [];
+
+let i;
 
 // Function to show loader and hide quoteContainer
 function loading() {
@@ -26,8 +31,7 @@ async function getQuotes() {
 
     const apiURL = "https://jacintodesign.github.io/quotes-api/data/quotes.json";
     // const apiURL2 = "https://type.fit/api/quotes";
-    // apiURL contains 8k+ quotes. apiURL2 contains 1.5k+ quotes.
-    // I am only using apiURL, so I commented out apiURL2 
+    // apiURL contains 8k+ quotes. apiURL2 contains 1.5k+ quotes. I am only using apiURL, so I commented out apiURL2 
 
     try {
         const apiResponse = await fetch(apiURL);
@@ -36,51 +40,95 @@ async function getQuotes() {
         // Run/call the newQuote function
         newQuote();
         
-        /* Log the json file which basically contains the items displayed on the webpage.
-         in this case an array of quotes
-        console.log(apiQuotes); */
+        // Log the json file which basically contains the items displayed on the webpage, in this case an array of quotes
+        // console.log(apiQuotes);
         // Log the content of a particular index
         // console.log(apiQuotes[10]);
     } catch (error) {
-        /* Do something with the error caught. Eg, display an alert on the screen 
-         or pass it to a UI element created already. */
+        /* Do something with the error caught. Eg, display an alert on the screen or pass it to a UI element created already. */
     }
 
     /* try {
         const apiResponse = await fetch(apiURL2);
         apiQuotes = await apiResponse.json();
         console.log(apiQuotes);
-    } catch {} */
+    } catch() {} */
 }
 
 function newQuote() {
-    loading(); // Call the loading function incase it takes sometime to load when
-    // newQuoteBtn is pressed.
+    loading(); // Call the loading function incase it takes sometime to load when newQuoteBtn is pressed.
 
-    /* Pick a random quote from apiQuotes array by: Generating random 
-     numbers that are less than the length of the array. */
+    /* Pick a random quote from apiQuotes array by: Generating random numbers that are less than the length of the array. */
     const quote = apiQuotes[Math.floor(Math.random() * apiQuotes.length)];
     
-     // If Author field is blank, replace with string "Unknown"
-    if(!quote.author) {
-        authorText.textContent = "Unknown";
-    } else {
-        // We don't want the entire quote object, we just want the "author" part of the
-        // quote object hence, quote.author
-        authorText.textContent = quote.author;
+    // Pouplate previousAndPresentQuote array variable as new quotes are generated.
+    previousAndPresentQuote.push(quote);
+    // Remove quote in index 0 if we have up to 7 quotes
+    if(previousAndPresentQuote.length == 7) {
+        previousAndPresentQuote.shift();
     }
-
-    if(quote.text.length > 100) {
-        // Add a new CSS class (that already exists in styles.css file) to 
-        // quoteText element if the quote is long.
-        quoteText.classList.add("longQuote");
-    } else {
-        // Remove the CSS class if the quote is a short one.
-        quoteText.classList.remove("longQuote");
-    }
-    
-    quoteText.textContent = quote.text;
+    i = 2;
+    updateUIelements(quote);
     loadingComplete(); // Remove the loading animation after quoteText and authorText are set.
+}
+
+// Function to show previously viewed quotes
+function previousQuote() {
+    loading();
+    // First check if we have more than 1 quote in the array holding previous quotes.
+    if (previousAndPresentQuote.length <= 1) {
+        alert("No previous quote. Please get a new quote first");
+    } else {
+        let previousQuote = historyCheck(i);
+        i++;
+        updateUIelements(previousQuote);
+    }
+    loadingComplete();
+}
+
+// This function works with previousQuote function
+function historyCheck (int) {
+    let prevQuote;
+    if(previousAndPresentQuote.length >= int) {
+        prevQuote = previousAndPresentQuote[previousAndPresentQuote.length-int];
+    } else {
+        alert("No more previous quotes to show");
+        // Show the quote that was showing before
+        i = previousAndPresentQuote.length;
+        prevQuote = previousAndPresentQuote[previousAndPresentQuote.length - i];
+    }
+    return prevQuote;
+}
+
+//Goes forward to the present quote
+function presentQuote() {
+    loading();
+    let presentQuote = previousAndPresentQuote[previousAndPresentQuote.length - 1] 
+    i = 2;
+    updateUIelements(presentQuote);
+    loadingComplete();
+}
+
+function updateUIelements (obj) {
+    // If Author field is blank, replace with string "Unknown"
+    if(!obj.author) {
+          authorText.textContent = "Unknown";
+    } else {
+            // We just want to display the "author" part of the
+            // quote object hence, quote.author
+            authorText.textContent = obj.author;
+        }
+    
+        if(obj.text.length > 100) {
+            // Add a new CSS class (that already exists in styles.css file) to 
+            // quoteText element if the quote is long.
+            quoteText.classList.add("longQuote");
+        } else {
+            // Remove the CSS class if the quote is a short one.
+            quoteText.classList.remove("longQuote");
+        }
+        
+        quoteText.textContent = obj.text;
 }
 
 // Post a quote on Twitter
@@ -93,6 +141,9 @@ function tweetQuote() {
 
 // Event Listeners
 newQuoteBtn.addEventListener("click", newQuote);
+newQuoteBtn.addEventListener("click", newQuote);
+btnPreviousQuote.addEventListener("click", previousQuote);
+btnPresentQuote.addEventListener("click", presentQuote);
 twitterBtn.addEventListener("click", tweetQuote);
 
 // Run/call the function(s) below once the page loads

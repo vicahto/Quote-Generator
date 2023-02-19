@@ -141,3 +141,14 @@ button:active {
         height: 1.9rem;
     }
 }
+
+/* For Tablet and PC */
+@media screen and (min-width: 600px) {
+    .buttonContainer {
+        justify-content: center;
+    }
+
+    button {
+        margin: auto 0.6rem;
+    }
+}
